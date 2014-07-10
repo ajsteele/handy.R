@@ -1,4 +1,4 @@
 handy.R
 =======
 
-An R script of handy functions to save time.
+An R script containing handy functions to save time and typing.
