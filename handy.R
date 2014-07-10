@@ -1,0 +1,357 @@
+################################################################################
+###  DATA FRAMES  ##############################################################
+################################################################################
+
+sample.df <- function(x, size = 1, replace = FALSE, prob = NULL) {
+  # Samples rows from a data frame.
+  #
+  # Args:
+  #       x: A data frame.
+  #   size, replace, prob: Arguments from the sample function.
+  #
+  # Returns:
+  #   size rows from this data frame (default 1), with or without replacement
+  #   and with an optional probability vector.
+  x[sample(nrow(x), size, replace, prob), ]
+}
+
+withoutCols <- function(data, cols) {
+  # Returns a vector to allow certain columns to be excluded from a
+  # data frame. The case where the columns being excluded are referred to
+  # numerically is trivial, but is included as well for generality.
+  #
+  # Args:
+  #      data: a data frame.
+  #      cols: the columns to be excluded, as a vector or scalar of number(s) or
+  #            name(s).
+  #
+  # Returns:
+  #      In the text case, a vector of booleans; TRUE for columns to include.
+  #      In the numerical case, R understands df[-3,], so just minus the input.
+  if(is.character(cols)) { return(!(names(data) %in% cols)) }
+  else { return(-cols) }
+}
+
+################################################################################
+###  CHARACTERS  ###############################################################
+################################################################################
+
+removeWhitespace <- function(x) { gsub("\\s","", x) }
+# For a character or vector of characters x, removes all spaces and line
+# breaks.
+#
+# Args:
+#      x: A character or vector of characters.
+#
+# Returns:
+#      The character with whitespace removed.
+
+################################################################################
+###  FACTORS  ##################################################################
+################################################################################
+
+concatFactors <- function(...) {
+  # Takes some factors and concatenates them. R coerces factors to vectors if
+  # you don't convert them to character vectors at the intermediate stage, so
+  # this saves typing that every time.
+  #
+  # Args:
+  #      ...: Some factors
+  #
+  # Returns:
+  #      A big factor.
+  factor(unlist(lapply(list(...), FUN=as.character)))
+}
+
+factorChooseFirst <- function(x, first) {
+  # Move a chosen level to be the first in a factor.
+  #
+  # Args:
+  #         x: A factor.
+  #     first: The level in the factor you want to be first.
+  #
+  # Returns:
+  #      A factor with the first level redefined to be the one specified.
+  
+  # if the level requested to be first isn't present, this ain't gonna work
+  if (!(first %in% levels(x))) {
+    stop(paste("Error: the level", first, "doesn't appear in the factor",
+               deparse(substitute(x))))
+  }
+  factor(x, levels = c(first, levels(x)[levels(x) != first]))
+}
+
+allSameLength <- function(x) {
+  # Work out whether all elements of a list are the same length.
+  #
+  # Args:
+  #         x: A list.
+  #
+  # Returns:
+  #      TRUE or FALSE, depending.
+  length(unique(lapply(x, length))) == 1
+}
+
+################################################################################
+###  FILES  ####################################################################
+################################################################################
+
+list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
+                      ignore.case=FALSE) {
+  # Lists the directories present within a path.
+  # Credit: http://stackoverflow.com/questions/4749783
+  #
+  # Args:
+  #      See list.files
+  #
+  # Returns:
+  #      A vector of directories within the path being searched.
+  all <- list.files(path, pattern, all.dirs,
+                    full.names=TRUE, recursive=FALSE, ignore.case)
+  all[file.info(all)$isdir]
+}
+
+writeTablePlus <- function(data, filename, comment='', sep='\t',
+                           comment.char='#', col.names=NA,  ...) {
+  # A wrapper for the write.table function which adds a comment of your choice
+  # at the top of the file.
+  #
+  # Args:
+  #     filename: The name of the file to be written.
+  #      comment: The comment to be added at the top of the file.
+  #          sep: The separator for the data, tab by default.
+  # comment.char: The character denoting comments, # by default.
+  #    col.names: write.able argument. The NA default here ensures that the
+  #               header row is correctly offset given that the first column is
+  #               row names.
+  #         ... : Allows arbitrary extra arguments relevant to write.table.
+  #
+  # Returns:
+  #      Nothing!
+  f <- file(filename, open="wt") # open a connection to the file
+  # if there's a comment, write that first
+  if(nchar(comment) > 0) {
+    # wrap the comment at 80 lines prefixed the comment character plus space
+    comment <- strwrap(comment, width=80, prefix=paste(comment.char,' ',sep=''))
+    writeLines(comment, f)
+  }
+  write.table(data, f, sep=sep, col.names=col.names, ...)
+  close(f)
+}
+
+readTablePlus <- function(filename, sep='\t', comment.char='#', header=TRUE,
+                          ...) {
+  # Handy wrapper for the read.table function to make it compatible with the
+  # writeTablePlus function with its default options.
+  read.table(filename, sep=sep, comment.char=comment.char, header=header, ...)
+}
+
+justFilename <- function(x) {
+  # Returns filenames without extensions.
+  #
+  # Args:
+  #       x: A character or vector of characters containing filenames, with or
+  #          without paths.
+  #
+  # Returns:
+  #   The string or vector with everything after and including a final full stop
+  #   removed.
+  sapply(strsplit(basename(x),"\\."),
+         function(x) paste(x[1:(length(x)-1)],
+                           collapse=".")
+         )
+}
+
+fileExt <- function(x) {
+  # Returns just extensions from filenames.
+  #
+  # Args:
+  #       x: A character or vector of characters containing filenames, with or
+  #          without paths.
+  #
+  # Returns:
+  #   Everything after a final full stop.
+  
+  # split the strings by full stops, and only take the final element
+  extensions <- sapply(strsplit(basename(x),"\\."),
+                       function(x) tail(x, 1)
+                      )
+  # where the extension is the same as the input filename, there is no extension
+  extensions[extensions == x] <- ''
+  
+  extensions
+}
+
+suffixFilename <- function(x, suffix = '_1') {
+  # Returns a filename with a suffix appended before its extension.
+  #
+  # Args:
+  #       x: A character or vector of characters containing filenames.
+  #
+  # Returns:
+  #   filename_suffix.ext
+  paste0(justFilename(x), suffix, '.', fileExt(x))
+}
+
+################################################################################
+###  MATHEMATICS  ##############################################################
+################################################################################
+
+tri <- function(x) {
+  # Calculates the xth triangular number.
+  #
+  # Args:
+  #       x: A number.
+  #
+  # Returns:
+  #   The xth triangular number.
+  x * (x + 1) / 2
+}
+
+trirt <- function(x) {
+  # Calculates the triangular root of a number.
+  #
+  # Args:
+  #       x: A number.
+  #
+  # Returns:
+  #   Its triangular root.
+  (sqrt(8*x + 1) - 1) / 2
+}
+
+# A series of functions which allow arithmetic on quantities with uncertainty.
+# Create a quantity by passing values or vectors to unum(x, dx), and then add,
+# subtract, multiply or divide with the functions below.
+unum <- function(x, dx) { data.frame(x=x, dx=dx) }
+  # Calculates the triangular root of a number.
+  #
+  # Args:
+  #       x: A number or vector of numbers.
+  #      dx: A number or vector of numbers representing the uncertainty on x.
+  #
+  # Returns:
+  #   A data frame with columns x and dx which can be used for further
+  #   operations.
+uadd <- function(a, b) {
+  z <- a$x + b$x
+  dz <- sqrt(a$dx^2 + b$dx^2)
+  unum(z, dz)
+}
+usub <- function(a, b) {
+  z <- a$x - b$x
+  dz <- sqrt(a$dx^2 + b$dx^2)
+  unum(z, dz)
+}
+umul <- function(a, b) {
+  z <- a$x * b$x
+  dz <- z * sqrt((a$dx/a$x)^2 + (b$dx/b$x)^2)
+  unum(z, dz)
+}
+udiv <- function(a, b) {
+  z <- a$x / b$x
+  dz <- z * sqrt((a$dx/a$x)^2 + (b$dx/b$x)^2)
+  unum(z, dz)
+}
+
+normBySum <- function(x) {
+  # Returns a vector normalised by its sum, so it will now sum to 1.
+  #
+  # Args:
+  #       x: A vector.
+  #
+  # Returns:
+  #   A vector which sums to one.
+  x/sum(x)
+}
+
+################################################################################
+###  STATISTICS  ###############################################################
+################################################################################
+
+stdErr <- function(x) { sqrt(var(x)/length(x)) }
+  # For a vector x, returns the standard error on the mean.
+  #
+  # Args:
+  #      x: A vector.
+  #
+  # Returns:
+  #      The standard error on the mean.
+
+cv <- function(x) { sd(x)/mean(x) }
+  # For a vector x, returns the coefficient of variation.
+  #
+  # Args:
+  #      x: A vector.
+  #
+  # Returns:
+  #      The coefficient of variation.
+
+covar <- function(x) {
+  # Wrapper function which returns the variance for a single-column vector and
+  # a covariance matrix for a multi-column vector.
+  #
+  # Args:
+  #      x: Some data.
+  #
+  # Returns:
+  #      The covariance matrix.
+  if(is.null(dim(x))) {
+    return(var(x))
+  } else {
+    return(cov(x))
+  }
+}
+
+################################################################################
+###  MISCELLANEOUS  ############################################################
+################################################################################
+
+NA2val <- function(x, val = 0) {
+  # Wrapper to turn NAs in an object into a value of your choice.
+  #
+  # Args:
+  #       x: The object containing errant NA values.
+  #     val: The value to replace the NAs with, default 0.
+  #
+  # Returns:
+  #   The object with the NAs replaced appropriately.
+  x[is.na(x)] <- val
+  x
+}
+
+firstElement <- function(x) {
+  # Function for apply-ing to lists which will return the first element of a
+  # list element
+  # Args:
+  #       x: An object with elements.
+  #
+  # Returns:
+  #   The first element of that object.
+  x[1]
+}
+
+initParallel <- function(cores = NULL) {
+  # Wrapper to initialise parallel computing functionality.
+  #
+  # Args:
+  #   cores: The number of cores to use simultaneously. If absent, use the
+  #          default from registerDoMC, 'approximately half the number of
+  #          cores detected by the parallel package'.
+  #
+  # Returns:
+  #   Nothing.
+  require(doMC)
+  registerDoMC(cores)
+  require(foreach)
+}
+
+unixTimestamp <-function() {
+  # Quick function to generate the UNIX timestamp.
+  #
+  # Args:
+  #   None.
+  #
+  # Returns:
+  #   Time in whole seconds since the start of the Unix epoch (01/01/1970 UTC)
+  as.numeric(Sys.time())
+}
