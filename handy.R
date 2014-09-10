@@ -32,6 +32,44 @@ withoutCols <- function(data, cols) {
   else { return(-cols) }
 }
 
+explodeByCol <- function(x, col, sep=',', regex = NULL) {
+  # If your data frame contains multiple values in a single column, this splits
+  # multiple values across different rows, using either a separator character or
+  # a regular expression.
+  #
+  # Args:
+  #        x: a data frame.
+  #      col: the column to explode by.
+  #      sep: the separator of the multiple values.
+  #    regex: a regular expression which matches the values you're looking for;
+  #           overrides sep.
+  #
+  # Returns:
+  #      A data frame with new rows, one for each value in the exploded column.
+  
+  # if regex is NULL, use the separator provided
+  if(is.null(regex)) {
+    exploded <- strsplit(x[, col], sep)
+  } else {
+    exploded <- regmatches(x[, col], gregexpr(regex, x[, col]))
+  }
+  # how many of each row should I create? ie 1,1,2,1,0
+  n.exploded <- sapply(exploded, length)
+  # turn that into a list of data frame row indices, ie 1,2,3,3,4
+  n.exploded.rows <- unlist(
+    sapply(1:length(n.exploded), # loop over i, the row index
+           function(i) {
+             rep(i, n.exploded[i])  # the row number i, n times
+           }
+           )
+    )
+  # take the data frame and repeat rows the relevant number of times
+  x <- x[n.exploded.rows, ]
+  # fill its RS ID column with the appropriate IDs
+  x[, col] <- unlist(exploded)
+  x
+}
+
 ################################################################################
 ###  CHARACTERS  ###############################################################
 ################################################################################
