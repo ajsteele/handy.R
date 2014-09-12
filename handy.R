@@ -113,7 +113,7 @@ paste0Plus <- function(..., collapse = NULL, recycleZeroLength = TRUE) {
 ################################################################################
 
 concatFactors <- function(...) {
-  # Takes some factors and concatenates them. R coerces factors to vectors if
+  # Takes some factors and concatenates them. R coerces factors to integers if
   # you don't convert them to character vectors at the intermediate stage, so
   # this saves typing that every time.
   #
