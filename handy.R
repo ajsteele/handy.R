@@ -84,6 +84,30 @@ removeWhitespace <- function(x) { gsub("\\s","", x) }
 # Returns:
 #      The character with whitespace removed.
 
+pastePlus <- function(..., sep=" ", collapse = NULL, recycleZeroLength = TRUE) {
+  # Version of the base R paste function which optionally returns nothing if any
+  # of the ...s being concatenated have zero length. (Default behaviour is to
+  # recycle them to "".)
+  #
+  # Args:
+  # ..., sep, collapse: as paste in base R
+  #   ignoreZeroLength: 
+  #
+  # Returns:
+  #      If any of the passed objects has zero length, NULL; otherwise, the
+  #      result of the paste function.
+  if(!recycleZeroLength &
+       any(lapply(list(...), length) == 0)) {
+    return(NULL);
+  }
+  paste(..., sep = sep, collapse = collapse)
+}
+
+paste0Plus <- function(..., collapse = NULL, recycleZeroLength = TRUE) {
+  pastePlus(..., sep="", collapse = collapse,
+            ignoreZeroLength = ignoreZeroLength)
+}
+
 ################################################################################
 ###  FACTORS  ##################################################################
 ################################################################################
