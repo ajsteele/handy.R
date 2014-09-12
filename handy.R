@@ -72,9 +72,9 @@ explodeByCol <- function(x, col, sep=',', regex = NULL,
   
   # if regex is NULL, use the separator provided
   if(is.null(regex)) {
-    exploded <- strsplit(x[, col], sep)
+    exploded <- strsplit(x[, col], sep, fixed = fixed)
   } else {
-    exploded <- regmatches(x[, col], gregexpr(regex, x[, col]))
+    exploded <- regmatches(x[, col], gregexpr(regex, x[, col]), fixed = fixed)
   }
   # how many of each row should I create? ie 1,1,2,1,0
   n.exploded <- sapply(exploded, length)
