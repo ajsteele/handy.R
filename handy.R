@@ -32,7 +32,8 @@ withoutCols <- function(data, cols) {
   else { return(-cols) }
 }
 
-explodeByCol <- function(x, col, sep=',', regex = NULL) {
+explodeByCol <- function(x, col, sep=',', regex = NULL,
+                         fixed = is.null(regex)) {
   # If your data frame contains multiple values in a single column, this splits
   # multiple values across different rows, using either a separator character or
   # a regular expression.
@@ -43,6 +44,10 @@ explodeByCol <- function(x, col, sep=',', regex = NULL) {
   #      sep: the separator of the multiple values.
   #    regex: a regular expression which matches the values you're looking for;
   #           overrides sep.
+  #    fixed: whether a strsplit or a regexp, this determines whether to search
+  #           for a pattern (TRUE) or a fixed string (FALSE). Defaults to TRUE
+  #           where regex is NULL, and FALSE if not, to coincide with the most
+  #           likely use-cases for each.
   #
   # Returns:
   #      A data frame with new rows, one for each value in the exploded column.
