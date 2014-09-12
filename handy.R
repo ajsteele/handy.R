@@ -47,6 +47,24 @@ explodeByCol <- function(x, col, sep=',', regex = NULL) {
   # Returns:
   #      A data frame with new rows, one for each value in the exploded column.
   
+  # data frames fairly often come in with 'character' columns which are factors,
+  # and these string-based functions can't handle that, so convert with a
+  # warning
+  if(is.factor(x[, col])) {
+    warning(
+      paste0('The column you passed is a factor, and has been coerced',
+             ' to a character for exploding.')
+    )
+    x[, col] <- as.character(x[, col])
+  } else if(!is.character(x[, col])) {
+    # if it's not character data, it won't work, so pass an error
+    stop(
+      paste0('The column passed to explodeByType should be character ',
+             'data; it is of class ', class(x[, col]), '.'
+      )
+    )
+  }
+  
   # if regex is NULL, use the separator provided
   if(is.null(regex)) {
     exploded <- strsplit(x[, col], sep)
