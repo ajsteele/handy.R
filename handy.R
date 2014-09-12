@@ -105,7 +105,7 @@ pastePlus <- function(..., sep=" ", collapse = NULL, recycleZeroLength = TRUE) {
 
 paste0Plus <- function(..., collapse = NULL, recycleZeroLength = TRUE) {
   pastePlus(..., sep="", collapse = collapse,
-            ignoreZeroLength = ignoreZeroLength)
+            recycleZeroLength = recycleZeroLength)
 }
 
 ################################################################################
