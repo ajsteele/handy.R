@@ -387,6 +387,22 @@ covar <- function(x) {
   }
 }
 
+popvar <- function(x) {
+  # Calculates population variance instead of sample variance (which is the
+  # default of the var() function in R. NAs are always removed.
+  # 
+  # Args:
+  #      x - a vector of the population data.
+  #
+  # Returns:
+  #      A float which is the population variance.
+  x   <- x[!is.na(x)]
+  m   <- mean(x)
+  out <- (x-m)^2
+  out <- mean(out)
+  return(out)
+}
+
 ################################################################################
 ###  MISCELLANEOUS  ############################################################
 ################################################################################
