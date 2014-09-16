@@ -343,15 +343,19 @@ udiv <- function(a, b) {
   unum(z, dz)
 }
 
-normBySum <- function(x) {
-  # Returns a vector normalised by its sum, so it will now sum to 1.
+normalise <- function(x, FUN = sum) {
+  # Returns a vector normalised by the function FUN, default being sum so the
+  # vector would now sum to 1. Another example would be max, so the largest
+  # value in x becomes 1.
   #
   # Args:
   #       x: A vector.
+  #     FUN: A function which returns a single value when applied to a vector.
   #
   # Returns:
-  #   A vector which sums to one.
-  x/sum(x)
+  #   A vector, normalised appropriately.
+  if(!is.function(FUN)) stop('Passed FUN is not a function'))
+  x / FUN(x)
 }
 
 ################################################################################
