@@ -354,7 +354,7 @@ normalise <- function(x, FUN = sum) {
   #
   # Returns:
   #   A vector, normalised appropriately.
-  if(!is.function(FUN)) stop('Passed FUN is not a function'))
+  if(!is.function(FUN)) stop('Passed FUN is not a function')
   x / FUN(x)
 }
 
