@@ -1,4 +1,9 @@
 ################################################################################
+###  VARIABLE DEFINITION  ######################################################
+################################################################################
+default.logfile.name <- 'log.txt'
+
+################################################################################
 ###  DATA FRAMES  ##############################################################
 ################################################################################
 
@@ -447,6 +452,59 @@ initParallel <- function(cores = NULL) {
   require(doMC)
   registerDoMC(cores)
   require(foreach)
+}
+
+logfileStart <- function(filename = default.logfile.name) {
+  # Wrapper for creating a new blank log file during script execution.
+  # NB This will silently overwrite existing files!
+  #
+  # Args:
+  #  filename: The name of the file to create.
+  #
+  # Returns:
+  #   Nothing.
+  #
+  # Globals:
+  #   Creates a global variable called logfileName so that related functions
+  #   know where to write to.
+  logfileName <<- filename
+  cat('', file = filename)
+}
+
+logfileCat <- function(...,
+                       newline = TRUE, sep = "", fill = FALSE,
+                       filename = logfileName
+                       ) {
+  # Wrapper for adding an entry to a log file.
+  #
+  # Args:
+  #      ... : Stuff to write to the file
+  #   newline: Whether to start a new line after the entry.
+  #       sep: Separator between objects to write.
+  #      fill: The fill option for cat().
+  #  filename: The name of the file to write to; default being the global
+  #            variable set by logfileStart.
+  #
+  # Returns:
+  #   Nothing.
+  if(newline & !fill) append.me <- "\n" else append.me <- NULL
+  cat(..., append.me, file = filename, sep = sep, fill = fill,
+      append = TRUE)
+}
+
+logfileEnd <- function() {
+  # Wrapper for blanking the existing logfileName such that no further entries
+  # are written to it given the default options for logfileCat.
+  #
+  # Args:
+  #  None.
+  #
+  # Returns:
+  #   Nothing.
+  #
+  # Globals:
+  #   Sets logfileName  to "".
+  logfileName <<- ""
 }
 
 unixTimestamp <-function() {
