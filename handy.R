@@ -20,7 +20,7 @@ sample.df <- function(x, size = 1, replace = FALSE, prob = NULL) {
   x[sample(nrow(x), size, replace, prob), ]
 }
 
-withoutCols <- function(data, cols) {
+withoutCols <- function(df, cols) {
   # Returns a vector to allow certain columns to be excluded from a
   # data frame. The case where the columns being excluded are referred to
   # numerically is trivial, but is included as well for generality.
@@ -33,18 +33,18 @@ withoutCols <- function(data, cols) {
   # Returns:
   #      In the text case, a vector of booleans; TRUE for columns to include.
   #      In the numerical case, R understands df[-3,], so just minus the input.
-  if(is.character(cols)) { return(!(names(data) %in% cols)) }
+  if(is.character(cols)) { return(!(names(df) %in% cols)) }
   else { return(-cols) }
 }
 
-explodeByCol <- function(x, col, sep=',', regex = NULL,
+explodeByCol <- function(df, col, sep=',', regex = NULL,
                          fixed = is.null(regex)) {
   # If your data frame contains multiple values in a single column, this splits
   # multiple values across different rows, using either a separator character or
   # a regular expression.
   #
   # Args:
-  #        x: a data frame.
+  #       df: a data frame.
   #      col: the column to explode by.
   #      sep: the separator of the multiple values.
   #    regex: a regular expression which matches the values you're looking for;
@@ -60,26 +60,26 @@ explodeByCol <- function(x, col, sep=',', regex = NULL,
   # data frames fairly often come in with 'character' columns which are factors,
   # and these string-based functions can't handle that, so convert with a
   # warning
-  if(is.factor(x[, col])) {
+  if(is.factor(df[, col])) {
     warning(
       paste0('The column you passed is a factor, and has been coerced',
              ' to a character for exploding.')
     )
-    x[, col] <- as.character(x[, col])
-  } else if(!is.character(x[, col])) {
+    df[, col] <- as.character(df[, col])
+  } else if(!is.character(df[, col])) {
     # if it's not character data, it won't work, so pass an error
     stop(
       paste0('The column passed to explodeByType should be character ',
-             'data; it is of class ', class(x[, col]), '.'
+             'data; it is of class ', class(df[, col]), '.'
       )
     )
   }
   
   # if regex is NULL, use the separator provided
   if(is.null(regex)) {
-    exploded <- strsplit(x[, col], sep, fixed = fixed)
+    exploded <- strsplit(df[, col], sep, fixed = fixed)
   } else {
-    exploded <- regmatches(x[, col], gregexpr(regex, x[, col]), fixed = fixed)
+    exploded <- regmatches(df[, col], gregexpr(regex, df[, col]), fixed = fixed)
   }
   # how many of each row should I create? ie 1,1,2,1,0
   n.exploded <- sapply(exploded, length)
@@ -92,10 +92,10 @@ explodeByCol <- function(x, col, sep=',', regex = NULL,
            )
     )
   # take the data frame and repeat rows the relevant number of times
-  x <- x[n.exploded.rows, ]
+  df <- df[n.exploded.rows, ]
   # fill its RS ID column with the appropriate IDs
-  x[, col] <- unlist(exploded)
-  x
+  df[, col] <- unlist(exploded)
+  df
 }
 
 ################################################################################
