@@ -233,7 +233,16 @@ readTablePlus <- function(filename, sep='\t', comment.char='#', header=TRUE,
                           ...) {
   # Handy wrapper for the read.table function to make it compatible with the
   # writeTablePlus function with its default options.
-  read.table(filename, sep=sep, comment.char=comment.char, header=header, ...)
+  #
+  # Args:
+  #  filename: The name of the file to read. If it's a vector, the function
+  #            read the list of files provided and concatenate them into a
+  #            single data frame.
+  if(length(filename) > 1) {
+    do.call(rbind, lapply(files, readTablePlus))
+  } else {
+    read.table(filename, sep=sep, comment.char=comment.char, header=header, ...)
+  }
 }
 
 justFilename <- function(x) {
