@@ -239,7 +239,7 @@ readTablePlus <- function(filename, sep='\t', comment.char='#', header=TRUE,
   #            read the list of files provided and concatenate them into a
   #            single data frame.
   if(length(filename) > 1) {
-    do.call(rbind, lapply(files, readTablePlus))
+    do.call(rbind, lapply(filename, readTablePlus))
   } else {
     read.table(filename, sep=sep, comment.char=comment.char, header=header, ...)
   }
