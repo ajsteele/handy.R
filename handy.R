@@ -7,17 +7,17 @@ default.logfile.name <- 'log.txt'
 ###  DATA FRAMES  ##############################################################
 ################################################################################
 
-sample.df <- function(x, size = 1, replace = FALSE, prob = NULL) {
+sample.df <- function(df), size = 1, replace = FALSE, prob = NULL) {
   # Samples rows from a data frame.
   #
   # Args:
-  #       x: A data frame.
+  #      df: A data frame.
   #   size, replace, prob: Arguments from the sample function.
   #
   # Returns:
   #   size rows from this data frame (default 1), with or without replacement
   #   and with an optional probability vector.
-  x[sample(nrow(x), size, replace, prob), ]
+  x[sample(nrow(df), size, replace, prob), ]
 }
 
 withoutCols <- function(df, cols) {
@@ -26,9 +26,9 @@ withoutCols <- function(df, cols) {
   # numerically is trivial, but is included as well for generality.
   #
   # Args:
-  #      data: a data frame.
-  #      cols: the columns to be excluded, as a vector or scalar of number(s) or
-  #            name(s).
+  #      df: a data frame.
+  #    cols: the columns to be excluded, as a vector or scalar of number(s) or
+  #          name(s).
   #
   # Returns:
   #      In the text case, a vector of booleans; TRUE for columns to include.
