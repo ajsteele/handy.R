@@ -7,7 +7,7 @@ default.logfile.name <- 'log.txt'
 ###  DATA FRAMES  ##############################################################
 ################################################################################
 
-sample.df <- function(df), size = 1, replace = FALSE, prob = NULL) {
+sample.df <- function(df, size = 1, replace = FALSE, prob = NULL) {
   # Samples rows from a data frame.
   #
   # Args:
