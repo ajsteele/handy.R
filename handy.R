@@ -37,7 +37,7 @@ withoutCols <- function(df, cols) {
   else { return(-cols) }
 }
 
-explodeByCol <- function(df, col, sep=',', regex = NULL,
+explodeByCol <- function(df, cols, sep=',', regex = NULL,
                          fixed = TRUE) {
   # If your data frame contains multiple values in a single column, this splits
   # multiple values across different rows, using either a separator character or
@@ -45,7 +45,7 @@ explodeByCol <- function(df, col, sep=',', regex = NULL,
   #
   # Args:
   #       df: a data frame.
-  #      col: the column to explode by.
+  #     cols: one or more column(s) to explode by.
   #      sep: the separator of the multiple values.
   #    regex: a regular expression which matches the values you're looking for;
   #           overrides sep.
@@ -58,41 +58,55 @@ explodeByCol <- function(df, col, sep=',', regex = NULL,
   # data frames fairly often come in with 'character' columns which are factors,
   # and these string-based functions can't handle that, so convert with a
   # warning
-  if(is.factor(df[, col])) {
-    warning(
-      paste0('The column you passed is a factor, and has been coerced',
-             ' to a character for exploding.')
-    )
-    df[, col] <- as.character(df[, col])
-  } else if(!is.character(df[, col])) {
-    # if it's not character data, it won't work, so pass an error
-    stop(
-      paste0('The column passed to explodeByType should be character ',
-             'data; it is of class ', class(df[, col]), '.'
+
+  # instantiate a list to contain the exploded output
+  exploded <- list()
+  n.exploded <- list()
+
+  for(col in cols) {
+    if(is.factor(df[, col])) {
+      warning(
+        paste0('Column ', col, ' is a factor, and has been coerced ',
+               'to a character for exploding.')
       )
-    )
+      df[, col] <- as.character(df[, col])
+    } else if(!is.character(df[, col])) {
+      # if it's not character data, it won't work, so pass an error
+      stop(
+        paste0('Column  ', col, ' passed to explodeByType should be character ',
+               'data; it is of class ', class(df[, col]), '.'
+        )
+      )
+    }
+    # if regex is NULL, use the separator provided
+    if(is.null(regex)) {
+      exploded[col] <- list(strsplit(df[, col], sep, fixed = fixed))
+    # otherwise, use a regular expression to split the column
+    } else {
+      exploded[col] <- list(regmatches(df[, col], gregexpr(regex, df[, col])))
+    }
+    # how many of each row should I create? ie 1,1,2,1,0
+    n.exploded[[col]] <- sapply(exploded[[col]], length)
   }
-  
-  # if regex is NULL, use the separator provided
-  if(is.null(regex)) {
-    exploded <- strsplit(df[, col], sep, fixed = fixed)
-  } else {
-    exploded <- regmatches(df[, col], gregexpr(regex, df[, col]))
+
+  # check the n.exploded values are the same for all columns
+  if(!allSame(n.exploded)) {
+    stop(
+      paste0('The columns provided have inconsistent numbers of elements ',
+        'after exploding.'
+        )
+      )
   }
-  # how many of each row should I create? ie 1,1,2,1,0
-  n.exploded <- sapply(exploded, length)
-  # turn that into a list of data frame row indices, ie 1,2,3,3,4
-  n.exploded.rows <- unlist(
-    sapply(1:length(n.exploded), # loop over i, the row index
-           function(i) {
-             rep(i, n.exploded[i])  # the row number i, n times
-           }
-           )
-    )
+  # turn the first element of n.exploded into a list of data frame row indices,
+  # ie 1,2,3,3,4
+  n.exploded.rows <- rep(1:length(n.exploded[[cols[1]]]), n.exploded[[cols[1]]])
+
   # take the data frame and repeat rows the relevant number of times
   df <- df[n.exploded.rows, ]
-  # fill its RS ID column with the appropriate IDs
-  df[, col] <- unlist(exploded)
+  # fill its exploded column(s) with the appropriate values
+  for(col in cols) {
+    df[, col] <- unlist(exploded[[col]])
+  }
   df
 }
 
@@ -167,6 +181,18 @@ factorChooseFirst <- function(x, first) {
                deparse(substitute(x))))
   }
   factor(x, levels = c(first, levels(x)[levels(x) != first]))
+}
+
+allSame <- function(x) {
+  # Work out whether all elements of a list or vector are the same.
+  #
+  # Args:
+  #         x: A list or vector. Works if the list's elements are themselves
+  #            lists or vectors.
+  #
+  # Returns:
+  #      TRUE or FALSE, depending.
+  length(unique(x)) == 1
 }
 
 allSameLength <- function(x) {
