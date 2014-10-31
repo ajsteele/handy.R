@@ -148,6 +148,21 @@ paste0Plus <- function(..., collapse = NULL, recycleZeroLength = TRUE) {
             recycleZeroLength = recycleZeroLength)
 }
 
+strPos <- function(..., fixed = TRUE) {
+  # Wrapper function which returns the positions of the first occurrence of a
+  # pattern in some text. Simplifies regexpr which returns a variety of things
+  # other than simply the position. Defaults to fixed rather than regular
+  # expression searching.
+  #
+  # Args:
+  #    ...: see grep in base R; usually (pattern, text)
+  #  fixed: Logical. If true, pattern is matched as-is.
+  #
+  # Returns:
+  #      The position of the first occurrence of the pattern in the text.
+  regexpr(..., fixed = fixed)[1]
+}
+
 ################################################################################
 ###  FACTORS  ##################################################################
 ################################################################################
