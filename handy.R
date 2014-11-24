@@ -222,6 +222,22 @@ allSameLength <- function(x) {
 }
 
 ################################################################################
+###  LISTS  ####################################################################
+################################################################################
+
+list2dataframe <- function(x)  {
+  # Simple wrapper to very naively turn a list into a data frame. If your list
+  # elements have different numbers of elements, this will go wrong!
+  #
+  # Args:
+  #      x: A list.
+  #
+  # Returns:
+  #      A data frame made from the passed list.
+  data.frame(matrix(unlist(x), ncol = length(x[[1]]), byrow = TRUE))
+}
+
+################################################################################
 ###  FILES  ####################################################################
 ################################################################################
 
