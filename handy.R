@@ -585,3 +585,58 @@ unixTimestamp <-function() {
   #   Time in whole seconds since the start of the Unix epoch (01/01/1970 UTC)
   as.numeric(Sys.time())
 }
+
+getUserInput <- function(s, parse.fun = NULL, validate.fun = NULL, e = NULL) {
+  # Get input from the user typing at the terminal.
+  #
+  # Args:
+  #         s: The question to present the user with.
+  # parse.fun: Optional function with which to parse the input string.
+  # validate.fun: Optional function with which to validate the input string.
+  #         e: Error message to display if the (cleaned) value fails validation.
+  #
+  # Returns:
+  #   A parsed, validated input value.
+  
+  # loop, to keep asking for input if there's a problem
+  repeat {
+    # get the user's input by asking them s
+    user.input <- readline(s)
+    # if a function to clean input has been specified, run it
+    if(!is.null(parse.fun)) {
+      user.input <- parse.fun(user.input)
+    }
+    # if a function to validate input has been specified
+    if(!is.null(validate.fun)) {
+      # if the input validates...
+      if(validate.fun(user.input)) {
+        # ...the pass it back
+        return(user.input)
+      }
+    } else {
+      # if there's no validation to perform, return it anyway
+      return(user.input)
+    }
+    # if we've got this far, validation must have failed...print an error
+    # message and have another try...
+    cat(e)
+  }
+}
+
+getUserInputInteger <- function(s) {
+  # Wrapper function to use getUserInput to acquire an integer from the user.
+  #
+  # Args:
+  #         s: The question to present the user with.
+  #
+  # Returns:
+  #   An integer.
+  getUserInput(s,
+               parse.fun = function(x){
+                  suppressWarnings(as.integer(x))
+                 },
+               validate.fun = function(x) {
+                  ifelse(!is.na(x), TRUE, FALSE)
+                 },
+               e = 'Could not parse input as an integer.')
+}
