@@ -522,6 +522,36 @@ initParallel <- function(cores = NULL) {
   require(foreach)
 }
 
+inRange <- function(x, rang, incl.end = rep(FALSE, length(rang))) {
+  # Returns a vector of booleans specifying whether values of x fall within the
+  # range rang.
+  #
+  # Args:
+  #          x: A vector of numbers.
+  #       rang: A vector specifying the range within which they are permitted to
+  #             fall. It can be of any length; only the smallest and largest
+  #             values are used. Called 'rang' so as not to clash with the
+  #             'range' function in base R.
+  #   incl.end: A vector of the same length as rang specifying whether a given
+  #             endpoint is included or excluded from the range.
+  #
+  # Returns:
+  #   A boolean with the same length of x, TRUE if within the range specified,
+  #   FALSE otherwise.
+  
+  # find the indices of the smallest and largest values of the vector
+  # (presumably usually there will only be two!)
+  i.min <- which.min(rang)
+  i.max <- which.max(rang)
+  
+  # find those which are bigger than the minimum value (including endpoint if
+  # specified)...
+  if(incl.end[i.min]){x >= rang[i.min]}else{x > rang[i.min]} &
+  # ...and those smaller than the max...
+  if(incl.end[i.max]){x <= rang[i.max]}else{x < rang[i.max]}
+  # ...and return it!
+}
+
 logfileStart <- function(filename = default.logfile.name) {
   # Wrapper for creating a new blank log file during script execution.
   # NB This will silently overwrite existing files!
