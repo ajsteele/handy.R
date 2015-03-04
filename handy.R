@@ -670,3 +670,18 @@ getUserInputInteger <- function(s) {
                  },
                e = 'Could not parse input as an integer.')
 }
+
+floor.2 <- function(x, digits=0) {
+  # the function floor but with a "digits" option to floor not just to the nearest integer
+  #
+  # Args:
+  #         x: vector to floor
+  #         digits: Number of decimal places to be used
+  #
+  # Returns:
+  #   integer/vector.
+  output <- floor(x*(10^digits)) / 10^digits
+    
+  return(output)
+
+}
