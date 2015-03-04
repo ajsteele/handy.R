@@ -351,6 +351,32 @@ suffixFilename <- function(x, suffix = '_1') {
 ###  MATHEMATICS  ##############################################################
 ################################################################################
 
+floorPlus <- function(x, digits = 0) {
+  # the function floor but with a "digits" option to floor not just to the
+  # nearest integer
+  #
+  # Args:
+  #         x: vector to floor
+  #         digits: Number of decimal places to be used
+  #
+  # Returns:
+  #   integer/vector.
+  floor(x*(10^digits)) / 10^digits
+}
+
+ceilPlus <- function(x, digits = 0) {
+  # the function ceil but with a "digits" option to floor not just to the
+  # nearest integer
+  #
+  # Args:
+  #         x: vector to floor
+  #         digits: Number of decimal places to be used
+  #
+  # Returns:
+  #   integer/vector.
+  ceil(x*(10^digits)) / 10^digits
+}
+
 tri <- function(x) {
   # Calculates the xth triangular number.
   #
@@ -669,19 +695,4 @@ getUserInputInteger <- function(s) {
                   ifelse(!is.na(x), TRUE, FALSE)
                  },
                e = 'Could not parse input as an integer.')
-}
-
-floor.2 <- function(x, digits=0) {
-  # the function floor but with a "digits" option to floor not just to the nearest integer
-  #
-  # Args:
-  #         x: vector to floor
-  #         digits: Number of decimal places to be used
-  #
-  # Returns:
-  #   integer/vector.
-  output <- floor(x*(10^digits)) / 10^digits
-    
-  return(output)
-
 }
