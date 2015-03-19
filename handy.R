@@ -533,6 +533,17 @@ firstElement <- function(x) {
   x[1]
 }
 
+requireMulti <- function(...) {
+  # Simply require a number of packages in the same command.
+  #
+  # Args:
+  #   packages: A vector of the names of the packages to be imported.
+  #
+  # Returns:
+  #   Nothing.
+  lapply(c(...), require, character.only=T)
+}
+
 initParallel <- function(cores = NULL) {
   # Wrapper to initialise parallel computing functionality.
   #
