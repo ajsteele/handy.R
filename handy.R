@@ -533,15 +533,52 @@ firstElement <- function(x) {
   x[1]
 }
 
-requireMulti <- function(...) {
-  # Simply require a number of packages in the same command.
+requirePlus <- function(..., install = FALSE) {
+  # Simply require a number of packages in the same command, and install them if
+  # not present.
   #
   # Args:
   #   packages: A vector of the names of the packages to be imported.
+  #    install: Logical indicating whether missing packages should be installed.
   #
   # Returns:
-  #   Nothing.
-  lapply(c(...), require, character.only=T)
+  #   TRUE on success importing all packages, FALSE on failure.
+
+  package.list <- c(...)
+  # if the install parameter is true, install missing packages
+  if(install) {
+    message('Checking for missing packages...')
+    packages.present <- package.list %in% rownames(installed.packages())
+    if(any(!packages.present)) {
+      message(
+        paste('Installing missing packages',
+              paste(package.list[!packages.present], collapse = ', ')
+        )
+      )
+      install.packages(package.list[!packages.present])
+    }
+  }
+  # loop over packages, importing them
+  require.success <- unlist(
+    # suppress warnings, because we'll tell the user which packages failed later
+    suppressWarnings(lapply(package.list, require, character.only = TRUE))
+  )
+  message(
+    paste('Successfully imported packages',
+          paste(package.list[require.success], collapse = ', ')
+    )
+  )
+  if(sum(!require.success) > 0) {
+    warning(
+      paste('Failed to import packages',
+            paste(package.list[!require.success], collapse = ', ')
+      )
+    )
+    # if there is a missing package, let the user know
+    return(FALSE)
+  }
+  # otherwise, return TRUE
+  TRUE
 }
 
 initParallel <- function(cores = NULL) {
