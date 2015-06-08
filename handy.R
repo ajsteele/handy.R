@@ -198,6 +198,20 @@ factorChooseFirst <- function(x, first) {
   factor(x, levels = c(first, levels(x)[levels(x) != first]))
 }
 
+factorNAfix <- function(x, NAval = 'NA') {
+  # Make NA values in a factor into their own level.
+  #
+  # Args:
+  #         x: A factor.
+  #     NAval: The value to replace NAs with. The string 'NA' by default.
+  #
+  # Returns:
+  #      A factor with NAs replaced by a specific level.
+  levels(x) <- c(levels(x), NAval)
+  x[is.na(x)] <- NAval
+  x
+}
+
 allSame <- function(x) {
   # Work out whether all elements of a list or vector are the same.
   #
