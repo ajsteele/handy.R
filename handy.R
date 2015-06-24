@@ -547,6 +547,68 @@ firstElement <- function(x) {
   x[1]
 }
 
+permute <-
+function(
+  # Randomly permute (some) elements of a vector or character string to create a
+  # (slightly) randomised version of it.
+  #
+  # Args:
+          x,
+  #       A vector or character string to have its contents permuted.
+          frac = 1.0,
+  #       The fraction of the contents to be permuted, from 0 (no permutation)
+  #       to 1 (permute everything).
+          n.permute = NA
+  #       The number of items to permute. Defaults to being calculated from frac
+  #       but can be specified manually too. Must be a multiple of 2, because
+  #       elements are swapped in pairs.
+  #
+  # Returns:
+  #       The vector or string with n.permute of its elements permuted.
+) {
+  # if frac is not a fraction, throw an error
+  if(frac < 0.0 | frac > 1.0) {
+    stop(paste0('frac = ', frac,'; it must be between 0 and 1.'))
+  } else if(!is.na(n.permute) & n.permute %% 2 != 0) {
+    stop(paste0('n.permute = ', n.permute,'; it must be divisible by 2.'))
+  }
+      
+  # if x is a character string, make it into a vector for processing and set a
+  # reminder to put it back as a string before returning
+  if(class(x) == 'character') {
+    x.is.string <- TRUE
+    x <- strsplit(x, '')[[1]]
+  } else {
+    x.is.string <- FALSE
+  }
+  
+  # if n.permute was not provided, we can now calculate it
+  if(is.na(n.permute)) {
+    n.permute <- round(length(x)*frac / 2) * 2 # make sure it's a multiple of 2!
+  }
+  
+  # if n.permute is longer than the vector...
+  if(n.permute > length(x)) {
+    stop(paste0('n.permute = ', n.permute,', which is greater than the length ',
+                'of the string or vector provided, ', length(x)))
+  }
+  
+  # Create a random sample for pairs of positions to swap between
+  swapsies <- sample(1:length(x), n.permute)
+  
+  # take those swapping positions and move them around; reversing the indices in
+  # the second part of the function implies that position 1 will swap with
+  # position n, 2 with n-1, etc...
+  x <- replace(x, swapsies, x[rev(swapsies)])
+  
+  # if it was a string then reassemble it before returning
+  if(x.is.string) {
+    x <- paste(x, collapse='')
+  }
+  
+  x
+}
+
 requirePlus <- function(..., install = FALSE) {
   # Simply require a number of packages in the same command, and install them if
   # not present.
