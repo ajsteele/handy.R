@@ -609,7 +609,7 @@ function(
   x
 }
 
-requirePlus <- function(..., install = FALSE) {
+requirePlus <- function(..., install = TRUE) {
   # Simply require a number of packages in the same command, and install them if
   # not present.
   #
@@ -618,7 +618,7 @@ requirePlus <- function(..., install = FALSE) {
   #    install: Logical indicating whether missing packages should be installed.
   #
   # Returns:
-  #   TRUE on success importing all packages, FALSE on failure.
+  #   Nothing (though warning and error messages are displayed on failure)
 
   package.list <- c(...)
   # if the install parameter is true, install missing packages
@@ -650,11 +650,7 @@ requirePlus <- function(..., install = FALSE) {
             paste(package.list[!require.success], collapse = ', ')
       )
     )
-    # if there is a missing package, let the user know
-    return(FALSE)
   }
-  # otherwise, return TRUE
-  TRUE
 }
 
 initParallel <- function(cores = NULL) {
