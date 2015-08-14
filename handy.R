@@ -822,14 +822,3 @@ getUserInputInteger <- function(s) {
                  },
                e = 'Could not parse input as an integer.')
 }
-
-mkdir <- function(x = "untitled") {
-    # Makes a directory.
-    #
-    # Args:
-    #      x: Directory name.
-    #
-    # Returns:
-    #   Nothing.
-    system(paste0('mkdir "', x, '"'))
-}
