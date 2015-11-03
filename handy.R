@@ -163,6 +163,85 @@ strPos <- function(..., fixed = TRUE) {
   regexpr(..., fixed = fixed)[1]
 }
 
+randomString <- function(l, characters = letters, disallowed = NULL) {
+  # Generate a random string, with optional excision of disallowed sequences.
+  #
+  # Args:
+  #      l: The length of the string to generate in number of components
+  #         (usually single characters, see below)
+  #  characters: Either a string eg 'Argh' which will be split into individual
+  #         characters to act as string components, or a vector of components;
+  #         no check is made so these can be multi-character
+  #  disallowed: A vector of disallowed sequences. Defaults to NULL, which
+  #         lets anything through.
+  #
+  # Returns:
+  #      A string of length l picked from the characters provided, without any
+  #      disallowed strings.
+  
+  
+  # if passed a single-element vector, it's almost certain they don't want a
+  # single string repeated 'randomly' over and over, so split it into characters
+  if(length(characters == 1)) {
+    characters <- unlist(strsplit(characters, ''))
+  }
+  # generate a random string by sampling from characters
+  random.string <- paste0(
+    sample(
+      characters,
+      l,
+      replace = TRUE
+    ),
+    collapse=''
+  )
+  # if they've passed a disallowed vector, let's check none of the parts of the
+  # string contain it
+  if(!is.null(disallowed)) {
+    # loop over elements of disallowed
+    for(not.allowed in disallowed) {
+      # find matches of the forbidden string
+      not.allowed.matches <- gregexpr(not.allowed, random.string)
+      # if some matches are found...
+      while(not.allowed.matches[[1]][1] != -1) {
+        # ...loop over them, getting rid of one at a time
+        for(i in 1:length(not.allowed.matches[[1]])) {
+          substring(
+            random.string,
+            # start at the match point
+            not.allowed.matches[[1]][i],
+            # end at match point plus match length
+            not.allowed.matches[[1]][i] + attr(not.allowed.matches[[1]], 'match.length')[i]
+          ) <-
+            # and what better to replace them with than a string generated at
+            # random with this very function!
+            randomString(
+              attr(not.allowed.matches[[1]], 'match.length')[i],
+              characters,
+              disallowed
+            )
+        }
+        # and then perform the test again to make sure we didn't introduce
+        # any unexpected disallowed patterns with the replacements...
+        not.allowed.matches <- gregexpr(not.allowed, random.string)
+      }
+    }
+  }
+  # return the random string
+  random.string
+}
+
+randomStrings <- function(n, l, characters = letters, disallowed = NULL) {
+  # Generate n random strings; wrapper for the randomString function.
+  #
+  # Args:
+  #      n: Number of random strings to generate
+  #    ...: For other arguments, see randomString
+  #
+  # Returns:
+  #      n random strings with the specified properties
+  replicate(n, randomString(l, characters, disallowed))
+}
+
 ################################################################################
 ###  FACTORS  ##################################################################
 ################################################################################
