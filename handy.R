@@ -604,6 +604,30 @@ popvar <- function(x, na.rm = FALSE) {
   mean((x-mean(x))^2)
 }
 
+weightedMeanPlus <- function(x, w, na.rm = FALSE) {
+  # Compute a weighted mean, where the na.rm argument ignores NA values in both
+  # the values and their weights. (The default R function returns NA if any
+  # weight is NA even with na.rm = TRUE.)
+  # 
+  # Args:
+  #      x: an object containing the values whose weighted mean is to be
+  #         computed.
+  #      w: a numerical vector of weights the same length as x giving the
+  #         weights to use for elements of x.
+  #  na.rm: a logical value indicating whether NA values should be stripped
+  #         before the computation proceeds.
+  #
+  # Returns:
+  #      The weighted mean.
+  if(na.rm) {
+    not.na <- !(is.na(x) | is.na(w))
+    wm <- weighted.mean(x[not.na], w[not.na])
+  } else {
+    wm <- weighted.mean(x, w)
+  }
+  wm
+}
+
 ################################################################################
 ###  MISCELLANEOUS  ############################################################
 ################################################################################
