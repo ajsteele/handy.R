@@ -718,13 +718,14 @@ function(
   x
 }
 
-requirePlus <- function(..., install = TRUE) {
+requirePlus <- function(..., install = TRUE, quietly = TRUE) {
   # Simply require a number of packages in the same command, and install them if
   # not present.
   #
   # Args:
   #   packages: A vector of the names of the packages to be imported.
   #    install: Logical indicating whether missing packages should be installed.
+  #    quietly: As with require, quietly suppresses messages.
   #
   # Returns:
   #   Nothing (though warning and error messages are displayed on failure)
@@ -746,13 +747,17 @@ requirePlus <- function(..., install = TRUE) {
   # loop over packages, importing them
   require.success <- unlist(
     # suppress warnings, because we'll tell the user which packages failed later
-    suppressWarnings(lapply(package.list, require, character.only = TRUE))
-  )
-  message(
-    paste('Successfully imported packages',
-          paste(package.list[require.success], collapse = ', ')
+    suppressWarnings(
+      lapply(package.list, require, character.only = TRUE, quietly = quietly)
     )
   )
+  if(sum(require.success) > 0) {
+    message(
+      paste('Successfully imported packages',
+            paste(package.list[require.success], collapse = ', ')
+      )
+    )
+  }
   if(sum(!require.success) > 0) {
     warning(
       paste('Failed to import packages',
