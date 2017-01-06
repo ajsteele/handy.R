@@ -930,3 +930,36 @@ getUserInputInteger <- function(s) {
                  },
                e = 'Could not parse input as an integer.')
 }
+
+
+
+handyTimer <- function(t = NA, numeric = TRUE) {
+  # Wrapper function for easy to read timing code.
+  #
+  # Args:
+  #   t: The time. Pass nothing (or NA) and the function will return the current
+  #      time, ie start the clock. Pass a numeric or time object (ie a
+  #      previously stored start time), and the function returns the difference
+  #      (ie a time you wanted to measure).
+  #   numeric: Whether to convert your time into a simple numerical value. FALSE
+  #      results in returning an R time or time difference object.
+  #
+  # Returns:
+  #   Either the current time, or the time since t.
+  
+  # If t is NA, get current time
+  if(is.na(t)) {
+    t <- proc.time()['elapsed']
+    # Otherwise, get time difference
+  } else {
+    t <- proc.time()['elapsed'] - t
+  }
+  
+  # If the user wanted a numerical answer, as.numeric it
+  if(numeric) {
+    t <- as.numeric(t)
+  }
+  
+  # Return t
+  t
+}
