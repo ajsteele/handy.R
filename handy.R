@@ -355,8 +355,9 @@ list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
   all[file.info(all)$isdir]
 }
 
-writeTablePlus <- function(data, filename, comment='', sep='\t',
-                           comment.char='#', col.names=NA,  ...) {
+writeTablePlus <- function(data, filename, comment = '', sep = '\t',
+                           comment.char = '#', row.names = FALSE, 
+                           col.names = TRUE, ...) {
   # A wrapper for the write.table function which adds a comment of your choice
   # at the top of the file.
   #
@@ -365,21 +366,24 @@ writeTablePlus <- function(data, filename, comment='', sep='\t',
   #      comment: The comment to be added at the top of the file.
   #          sep: The separator for the data, tab by default.
   # comment.char: The character denoting comments, # by default.
-  #    col.names: write.able argument. The NA default here ensures that the
-  #               header row is correctly offset given that the first column is
-  #               row names.
+  #    row.names: FALSE by default, because who wants row names?
+  #    col.names: TRUE by default, because everyone wants column names!
   #         ... : Allows arbitrary extra arguments relevant to write.table.
   #
   # Returns:
   #      Nothing!
+  
   f <- file(filename, open="wt") # open a connection to the file
   # if there's a comment, write that first
   if(nchar(comment) > 0) {
     # wrap the comment at 80 lines prefixed the comment character plus space
-    comment <- strwrap(comment, width=80, prefix=paste(comment.char,' ',sep=''))
+    comment <-
+      strwrap(comment, width = 80, prefix = paste(comment.char, ' ', sep = ''))
     writeLines(comment, f)
   }
-  write.table(data, f, sep=sep, col.names=col.names, ...)
+  write.table(
+    data, f, sep=sep, row.names = row.names, col.names = col.names, ...
+  )
   close(f)
 }
 
@@ -396,6 +400,43 @@ readTablePlus <- function(filename, sep='\t', comment.char='#', header=TRUE,
     do.call(rbind, lapply(filename, readTablePlus))
   } else {
     read.table(filename, sep=sep, comment.char=comment.char, header=header, ...)
+  }
+}
+
+readXlsxWriteTables <- function(filename, output.ext = 'tsv', sheet.names = NA,
+                                ...) {
+  # Write a multi-workbook xlsx file to a series of text files. Currently not
+  # that useful, as neither read.xlsx nor read.xlsx2 does a very good job of
+  # identifying column types, and you end up with a TSV composed of strings
+  #
+  # Args:
+  #  filename:    The name of the Excel file to read.
+  #   output.ext: The extension of the output file(s).
+  #  sheet.names: The names of the sheets to be written out. Default NA will
+  #               write all sheets which are present.
+  #         ... : Allows arbitrary extra arguments to writeTablePlus
+  
+  # Require the xlsx library - not loaded by default as it's not often needed
+  requirePlus('xlsx')
+  
+  # If no sheet names were provided...
+  if(is.na(sheet.names)) {
+    # ...get the sheet names by a few nested functions
+    sheet.names <- names(getSheets(loadWorkbook(filename)))
+  }
+  
+  base.filename <- justFilename(filename)
+  
+  # For the provided sheet names, go through and read them, and then write them
+  for(sheet.name in sheet.names) {
+    writeTablePlus(
+      # read.xlsx2 is faster, and also assumes tabular data with a header,
+      # probably the more likely use-case here
+      read.xlsx2(filename, sheetName = sheet.name),
+      # filename_sheetname.tsv
+      paste0(base.filename, '_', sheet.name, '.', output.ext),
+      ...
+    )
   }
 }
 
