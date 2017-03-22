@@ -1004,3 +1004,15 @@ handyTimer <- function(t = NA, numeric = TRUE) {
   # Return t
   t
 }
+
+varName <- function(x) {
+  # Get the name of a variable as a string. Credit:
+  # http://stackoverflow.com/questions/14577412/
+  # Args:
+  #   x: A variable, eg myvar.
+  #
+  # Returns:
+  #   The name of the variable, eg 'myvar'.
+  
+  deparse(substitute(x))
+}
