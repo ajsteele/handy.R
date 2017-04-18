@@ -1005,8 +1005,8 @@ handyTimer <- function(t = NA, numeric = TRUE) {
   t
 }
 
-varName <- function(x) {
-  # Get the name of a variable as a string. Credit:
+varName <- function(...) {
+  # Get the name of a variable as a string. Inspired by:
   # http://stackoverflow.com/questions/14577412/
   # Args:
   #   x: A variable, eg myvar.
@@ -1014,5 +1014,48 @@ varName <- function(x) {
   # Returns:
   #   The name of the variable, eg 'myvar'.
   
-  deparse(substitute(x))
+  do.call(
+    function(x) { deparse(substitute(x)) },
+    ...
+      
+  )
+}
+
+varsToTable <- function(df, filename, index.cols = 1, ...) {
+  # Function to serialise variables for storage as a simple table in a text
+  # file. Takes a data frame df with columns (eg id1, id2, var1, var2) and, if
+  # a preexisting value is found with the same index.cols (eg c('id1', 'id2'),
+  # or 1:2 in this example), replaces the values (var1 and var2) or, if not,
+  # appends them, then writes the results to filename.
+  #
+  # TODO: Check that df has the same shape/column names(?) as the file.
+  # TODO: Check for repeated indices in the df provided.
+  #
+  # Args:
+  #   df:         A data frame of indices and values to store.
+  #   filename:   A file in which to store them.
+  #   index.cols: Which columns to use as indices, to find and replace existing
+  #               values with the same index.
+  #   ...:        Extra arguments for writeTablePlus.
+  #
+  # Returns:
+  #   Either the current time, or the time since t.
+  if(file.exists(filename)) {
+    vars.table <- readTablePlus(filename)
+    # First, append our data frame to the existing table
+    vars.table <- rbind(vars.table, df)
+
+    # Find the duplicate values of just the index columns, searching from the
+    # end because we want to keep the newer values we just rbind-ed in that
+    # case, and only keep unique ones.
+    vars.table <-
+      vars.table[!(duplicated(vars.table[, index.cols], fromLast = TRUE)), ]
+    
+  } else {
+    # If there's no existing file, just create a fresh data frame
+    vars.table <- df
+  }
+  
+  # Write the resulting data frame to a file of the given name
+  writeTablePlus(vars.table, filename, ...)
 }
