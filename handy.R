@@ -721,6 +721,32 @@ firstElement <- function(x) {
   x[1]
 }
 
+NArm <- function(x) {
+  # Remove NAs from a vector.
+  x[!is.na(x)]
+}
+
+
+samplePlus <- function(x, ..., na.rm = TRUE) {
+  # Extension of the sample function from base R with the option of only
+  # sampling from non-missing values.
+  #
+  # Args:
+  #      x: A vector of one or more elements from which to choose.
+  #    ...: Other arguments to sample (ie size, replace, prob)
+  #  na.rm: Whether or not to remove NAs. Default TRUE since otherwise why are
+  #         you using this wrapper function?
+  #
+  # Returns:
+  #   A sample from the vector (see sample documentation), without NAs if na.rm
+  #   is set to TRUE.
+  
+  if(na.rm) {
+    x <- NArm(x)
+  }
+  sample(x, ...)
+}
+
 permute <-
 function(
   # Randomly permute (some) elements of a vector or character string to create a
