@@ -750,7 +750,7 @@ NArm <- function(x) {
 }
 
 
-samplePlus <- function(x, ..., na.rm = TRUE) {
+samplePlus <- function(x, ..., na.rm = TRUE, only.unique = FALSE) {
   # Extension of the sample function from base R with the option of only
   # sampling from non-missing values.
   #
@@ -759,13 +759,18 @@ samplePlus <- function(x, ..., na.rm = TRUE) {
   #    ...: Other arguments to sample (ie size, replace, prob)
   #  na.rm: Whether or not to remove NAs. Default TRUE since otherwise why are
   #         you using this wrapper function?
+  #  only.unique: Sample from only the unique values of x?
   #
   # Returns:
   #   A sample from the vector (see sample documentation), without NAs if na.rm
-  #   is set to TRUE.
+  #   is set to TRUE, and only drawn from unique values of x is only.unique is
+  #   set to TRUE.
   
   if(na.rm) {
     x <- NArm(x)
+  }
+  if(only.unique) { 
+    x <- unique(x) 
   }
   sample(x, ...)
 }
