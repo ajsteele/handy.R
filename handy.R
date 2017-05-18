@@ -588,14 +588,27 @@ normalise <- function(x, FUN = sum) {
   x / FUN(x)
 }
 
+minGt <- function(x, gt = 0) {
+  # Return the minimum value of a vector greater than a value gt.
+  #
+  # Args:
+  #   x: A vector.
+  #   q: The value which this minimum value must be greater than, defaulting to
+  #      0 (which returns the minimum positive value).
+  #
+  # Returns:
+  #   The minimum positive value, eg c(-1, 0, 2, 4) would return 2.
+  min(x[x > gt])
+}
+
 minPositive <- function(x) {
-  # Return the minimum positive value of a vector.
+  # Return the minimum positive value of a vector. Wrapper for minGt.
   #
   # Args:
   #       x: A vector.
   # Returns:
   #   The minimum positive value, eg c(-1, 0, 2, 4) would return 2.
-  min(x[x > 0])
+  minGt(x, 0)
 }
 
 ################################################################################
