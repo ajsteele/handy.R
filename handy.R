@@ -588,6 +588,16 @@ normalise <- function(x, FUN = sum) {
   x / FUN(x)
 }
 
+minPositive <- function(x) {
+  # Return the minimum positive value of a vector.
+  #
+  # Args:
+  #       x: A vector.
+  # Returns:
+  #   The minimum positive value, eg c(-1, 0, 2, 4) would return 2.
+  min(x[x > 0])
+}
+
 ################################################################################
 ###  STATISTICS  ###############################################################
 ################################################################################
