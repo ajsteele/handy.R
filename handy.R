@@ -18,6 +18,17 @@ sample.df <- function(df, size = 1, replace = FALSE, prob = NULL) {
   #   size rows from this data frame (default 1), with or without replacement
   #   and with an optional probability vector.
   df[sample(nrow(df), size, replace, prob), ]
+
+bootstrapSampleDf <- function(df) {
+  # Quick wrapper function for simple bootstrap sampling of a data frame.
+  #
+  # Args:
+  #      df: A data frame.
+  #
+  # Returns:
+  #  A data frame with the same number of rows as the original, but randomly
+  #  sampled with replacement.
+  sample.df(df, size = nrow(df), replace = TRUE)
 }
 
 withoutCols <- function(df, cols) {
