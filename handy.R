@@ -17,7 +17,8 @@ sample.df <- function(df, size = 1, replace = FALSE, prob = NULL) {
   # Returns:
   #   size rows from this data frame (default 1), with or without replacement
   #   and with an optional probability vector.
-  df[sample(nrow(df), size, replace, prob), ]
+  df[sample(nrow(df), size, replace, prob), , drop = FALSE]
+}
 
 bootstrapSampleDf <- function(df) {
   # Quick wrapper function for simple bootstrap sampling of a data frame.
