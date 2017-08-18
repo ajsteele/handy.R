@@ -944,19 +944,28 @@ requirePlus <- function(..., install = TRUE, quietly = TRUE) {
   }
 }
 
-initParallel <- function(cores = NULL) {
+initParallel <- function(cores = NULL, backend = 'doMC') {
   # Wrapper to initialise parallel computing functionality.
   #
   # Args:
   #   cores: The number of cores to use simultaneously. If absent, use the
-  #          default from registerDoMC, 'approximately half the number of
-  #          cores detected by the parallel package'.
+  #          default from the relevant backend.
+  # backend: Which backend to use. Currently supports doMC and doParallel.
   #
   # Returns:
   #   Nothing.
-  require(doMC)
-  registerDoMC(cores)
-  require(foreach)
+  
+  if(backend == 'doMC') {
+    requirePlus('doMC', 'foreach')
+    registerDoMC(cores)
+  } else if(backend == 'doParallel') {
+    requirePlus('doParallel', 'foreach')
+    cl <- makeCluster(cores)
+    registerDoParallel(cl)
+    return(cl)
+  } else {
+    stop('Unrecognised backend', backend)
+  }
 }
 
 inRange <-
