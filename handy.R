@@ -904,8 +904,9 @@ requirePlus <- function(..., install = TRUE, quietly = TRUE) {
   package.list <- c(...)
   # if the install parameter is true, install missing packages
   if(install) {
-    message('Checking for missing packages...')
+    # Check for missing packages
     packages.present <- package.list %in% rownames(installed.packages())
+    # And, if there are any, install them
     if(any(!packages.present)) {
       message(
         paste('Installing missing packages',
@@ -922,13 +923,18 @@ requirePlus <- function(..., install = TRUE, quietly = TRUE) {
       lapply(package.list, require, character.only = TRUE, quietly = quietly)
     )
   )
-  if(sum(require.success) > 0) {
+  
+  # If at least some packages imported successfully and the user hasn't asked
+  # for quietness...
+  if(sum(require.success) > 0 & !quietly) {
     message(
       paste('Successfully imported packages',
             paste(package.list[require.success], collapse = ', ')
       )
     )
   }
+  
+  # If at least some packages failed, warn the user regardless of quietly arg
   if(sum(!require.success) > 0) {
     warning(
       paste('Failed to import packages',
